@@ -6,25 +6,26 @@ Created on 5 фев. 2021 г.
 '''
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QLabel, QTableView,\
     QLineEdit, QPushButton, QFrame, QHeaderView
-from PySide6.QtCore import QAbstractTableModel, Qt, QModelIndex, QObject
+from PySide6.QtCore import QAbstractTableModel, Qt, QModelIndex, QObject, QSize
 from PySide6.QtCore import Signal, Slot
 
+#объявление сигналов Qt
 class Sig(QObject):
-    lists=Signal(list, list)
+    lists=Signal(list, list)#cигнал для передачи списков в основное тело программы
     def __init__(self):
         super().__init__()      
 
 class MainWindow(QWidget):
     '''
-    classdocs
+    Объявление UI для программы
     '''
     def __init__(self, parent):
         super(MainWindow, self).__init__()
-        self.setMinimumSize(360,320)
-        self.setMaximumSize(360,320)
         self._width=360
         self._height=320
-        self.resize(self._width, self._height)
+        self.setMinimumSize(self._width,self._height)
+        self.setMaximumSize(self._width,self._height)
+        #self.resize(self._width, self._height)
         self.setWindowTitle('0-бед or 0-bet')
         self.VBox=QVBoxLayout(self)
         self.VBox.setContentsMargins(5, 5, 5, 5)
@@ -37,26 +38,28 @@ class MainWindow(QWidget):
         self.restUnitName=QLineEdit(self)
         self.restAddButt=QPushButton(self)
         self.restAddButt.setText('Добавить заведение')
+        self.restRmvButt=QPushButton(self)
+        self.restRmvButt.setText('Удалить заведение')
         self.sep2 = QFrame(self)
         self.sep2.setFrameShape(QFrame.HLine)
         self.sep2.setFrameShadow(QFrame.Sunken)
         self.restLotteryButt=QPushButton(self)
-        self.restLotteryButt.setText('Лотерея')
-        self.hashLabel=QLabel(self)
-        self.hashLabel.setText("Здесь будет хэш")
-        
+        self.restLotteryButt.setText('Лотерея')        
+       
         self.VBox.addWidget(self.restText)
         self.VBox.addWidget(self.restTable)
         self.VBox.addWidget(self.sep1)
         self.VBox.addWidget(self.restUnitName)
         self.VBox.addWidget(self.restAddButt)
+        self.VBox.addWidget(self.restRmvButt)
         self.VBox.addWidget(self.sep2)
         self.VBox.addWidget(self.restLotteryButt)
-        self.VBox.addWidget(self.hashLabel)
         self.setLayout(self.VBox)
         
         self.restAddButt.clicked.connect(self.addRestItem)
         self.restLotteryButt.clicked.connect(self.startLottery)
+        self.restRmvButt.clicked.connect(self.removeRestItem)
+        self.restTable.clicked.connect(self.selectRest)
         
         self.name_list=[]
         self.reqCount_list=[]
@@ -74,18 +77,33 @@ class MainWindow(QWidget):
             table_model=RestaurantTableModeL(self.name_list, self.reqCount_list)
             self.restTable.setModel(table_model)
             self.restTable.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeToContents)
-            self.restTable.resizeColumnsToContents()
             self.restTable.horizontalHeader().setStretchLastSection(True)
               
     def startLottery(self):
-        self.sg.lists.emit(self.name_list, self.reqCount_list)    
+        self.sg.lists.emit(self.name_list, self.reqCount_list)
+        
+    def selectRest(self):
+        self.idx=self.restTable.currentIndex()
+        self.restTable.selectRow(self.idx.row())
+    
+    def removeRestItem(self):
+        self.idx=self.restTable.currentIndex()
+        if self.reqCount_list[self.idx.row()] > 1:
+            self.reqCount_list[self.idx.row()]-=1
+        else:
+            self.name_list.pop(self.idx.row())
+            self.reqCount_list.pop(self.idx.row())
+        table_model=RestaurantTableModeL(self.name_list, self.reqCount_list)
+        self.restTable.setModel(table_model)
+        self.restTable.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeToContents)
+        self.restTable.horizontalHeader().setStretchLastSection(True)
+        
     
     @Slot(list)
     def updTbl(self, cnt):
         table_model=RestaurantTableModeL(self.name_list, self.reqCount_list, cnt)
         self.restTable.setModel(table_model)
         self.restTable.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeToContents)
-        self.restTable.resizeColumnsToContents()
         self.restTable.horizontalHeader().setStretchLastSection(True)
             
 class RestaurantTableModeL(QAbstractTableModel):
