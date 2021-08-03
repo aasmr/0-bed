@@ -15,7 +15,7 @@ class Body():
         self.sg=Signals() #инициализируем сигналы
         self.app=QApplication(sys.argv) #создаем экземпляр приложения
         self.window=gui.MainWindow(self) #подгружаем итерфейс окна из gui.py
-        self.window.sg.lists.connect(self.get_rest) #подключаем слот-функцию get_rest на появление сигнала sq.list из gui.py
+        self.window.sg.lists.connect(self.get_rest) #подключаем слот-функцию get_rest на появление сигнала sg.list из gui.py
         
     """
     объявляем слот-функцию, принимающю в качестве аргументов два списка:
