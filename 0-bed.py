@@ -1,5 +1,6 @@
-import requests, sys
-import gui
+#import requests, sys
+import urllib.request as reqq
+import gui, sys
 from PySide6.QtWidgets import QApplication
 from PySide6.QtCore import Slot, Signal, QObject
 
@@ -47,13 +48,27 @@ class Body():
     min - от...
     max - ...до...
     """
+    """
+    КОТ, ЭТОТ КОММЕНТ ДЛЯ ТЕБЯ
+    def req(num, min, max):
+        #делаем гет-запрос
+        res=reqq.urlopen('https://www.random.org/integers/?num='+str(num)+'&min='+str(min)+'&max='+str(max)+'&col=1&base=10&format=plain&rnd=new')
+        #дешефруем и создаем список
+        res_seq=res.read().decode('utf-8').split('\n')
+        #переводим из str в int
+        res_seq=[int(i) for i in res_seq[:-1]]
+        return res_seq
+    ПРОСТО КОПИРУЙ. У МЕНЯ РАБОТАЕТ. К ТОМУ ЖЕ И ВЫДАЧА НЕСКОЛЬКИХ ЧИСЕЛ
+    """
+    
     def req(self, num, min, max):
         #делаем гет-запрос
-        res=requests.get('https://www.random.org/integers/?num='+str(num)+'&min='+str(min)+'&max='+str(max)+'&col=1&base=10&format=plain&rnd=new')
+        #res=requests.get('https://www.random.org/integers/?num='+str(num)+'&min='+str(min)+'&max='+str(max)+'&col=1&base=10&format=plain&rnd=new')
+        res=reqq.urlopen('https://www.random.org/integers/?num='+str(num)+'&min='+str(min)+'&max='+str(max)+'&col=1&base=10&format=plain&rnd=new')
         #дешефруем и создаем список
-        res_seq=res.content.decode('utf-8').split('\n')
+        res_seq=res.read().decode('utf-8').split('\n')
         #переводим из str в int
-        res_seq=[int(i) for i in res_seq[:-1]][0]
+        res_seq=[int(i) for i in res_seq[:-1]]
         return res_seq
 
 if __name__=='__main__':
